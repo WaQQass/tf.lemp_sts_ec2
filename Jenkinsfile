@@ -22,7 +22,10 @@ pipeline {
                     echo "Assumed Role Output:"
                     echo assumeRoleOutput  // Print the assume role output for debugging
 
-                    def assumeRoleJson = readJSON(text: assumeRoleOutput)
+                    // Parse JSON using JsonSlurper
+                    def assumeRoleJson = new groovy.json.JsonSlurper().parseText(assumeRoleOutput)
+                    
+                    // Set environment variables with assumed role credentials
                     env.AWS_ACCESS_KEY_ID = assumeRoleJson.Credentials.AccessKeyId
                     env.AWS_SECRET_ACCESS_KEY = assumeRoleJson.Credentials.SecretAccessKey
                     env.AWS_SESSION_TOKEN = assumeRoleJson.Credentials.SessionToken
@@ -78,8 +81,7 @@ pipeline {
                             writeFile file: 'terraform/outputs.json', text: outputs
 
                             // Parse JSON output and set environment variables if needed
-                            // Example:
-                            def outputJson = readJSON text: outputs
+                            def outputJson = new groovy.json.JsonSlurper().parseText(outputs)
                             env.INSTANCE_ID = outputJson.instance_id.value
                             env.PUBLIC_IP = outputJson.public_ip.value
                         }
