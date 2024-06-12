@@ -19,10 +19,18 @@ pipeline {
                         script: 'aws sts assume-role --role-arn arn:aws:iam::372666185803:role/jenkins-role-for-waqas-user --role-session-name jenkins-session',
                         returnStdout: true
                     ).trim()
+                    echo "Assumed Role Output:"
+                    echo assumeRoleOutput  // Print the assume role output for debugging
+
                     def assumeRoleJson = readJSON(text: assumeRoleOutput)
                     env.AWS_ACCESS_KEY_ID = assumeRoleJson.Credentials.AccessKeyId
                     env.AWS_SECRET_ACCESS_KEY = assumeRoleJson.Credentials.SecretAccessKey
                     env.AWS_SESSION_TOKEN = assumeRoleJson.Credentials.SessionToken
+
+                    echo "Assumed Role Credentials:"
+                    echo "Access Key ID: ${env.AWS_ACCESS_KEY_ID}"
+                    echo "Secret Access Key: ${env.AWS_SECRET_ACCESS_KEY}"
+                    echo "Session Token: ${env.AWS_SESSION_TOKEN}"
                 }
             }
         }
