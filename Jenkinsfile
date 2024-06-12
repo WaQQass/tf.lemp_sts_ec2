@@ -7,22 +7,16 @@ pipeline {
     }
 
     environment {
-        AWS_REGION = 'us-west-1' // Update region to match your Terraform configuration
+        AWS_REGION = 'us-west-1' // Update with your AWS region
     }
 
     stages {
-        stage('Check Repository') {
-            steps {
-                git branch: 'main', credentialsId: 'git_lemp_new', url: 'https://github.com/WaQQass/tf.lemp_sts_ec2.git'
-                sh 'ls -la' // List all files in the current directory
-            }
-        }
         stage('Assume Jenkins Role for Terraform') {
             steps {
                 script {
-                    // Assume the jenkins-role-for-terraform-ec2 role using AWS CLI
+                    // Assume the jenkins-role-for-waqas-user role using AWS CLI
                     def assumeRoleOutput = sh(
-                        script: 'aws sts assume-role --role-arn arn:aws:iam::372666185803:role/jenkins-role-for-terraform-ec2 --role-session-name jenkins-session',
+                        script: 'aws sts assume-role --role-arn arn:aws:iam::372666185803:role/jenkins-role-for-waqas-user --role-session-name jenkins-session',
                         returnStdout: true
                     ).trim()
                     def assumeRoleJson = readJSON(text: assumeRoleOutput)
@@ -30,6 +24,13 @@ pipeline {
                     env.AWS_SECRET_ACCESS_KEY = assumeRoleJson.Credentials.SecretAccessKey
                     env.AWS_SESSION_TOKEN = assumeRoleJson.Credentials.SessionToken
                 }
+            }
+        }
+
+        stage('Check Repository') {
+            steps {
+                git branch: 'master', credentialsId: 'git_lemp_new', url: 'https://github.com/WaQQass/tf.lemp_sts_ec2.git'
+                sh 'ls -la' // List all files in the current directory
             }
         }
 
