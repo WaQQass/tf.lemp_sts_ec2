@@ -11,6 +11,12 @@ pipeline {
     }
 
     stages {
+        stage('Check Repository') {
+            steps {
+                git branch: 'master', credentialsId: 'git_lemp_new', url: 'https://github.com/WaQQass/tf.lemp_sts_ec2.git'
+                sh 'ls -la' // List all files in the current directory
+            }
+        }
         stage('Assume Jenkins Role for Terraform') {
             steps {
                 script {
