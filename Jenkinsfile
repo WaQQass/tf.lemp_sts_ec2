@@ -22,10 +22,7 @@ pipeline {
                     echo "Assumed Role Output:"
                     echo assumeRoleOutput  // Print the assume role output for debugging
 
-                    // Parse JSON using JsonSlurper
                     def assumeRoleJson = new groovy.json.JsonSlurper().parseText(assumeRoleOutput)
-                    
-                    // Set environment variables with assumed role credentials
                     env.AWS_ACCESS_KEY_ID = assumeRoleJson.Credentials.AccessKeyId
                     env.AWS_SECRET_ACCESS_KEY = assumeRoleJson.Credentials.SecretAccessKey
                     env.AWS_SESSION_TOKEN = assumeRoleJson.Credentials.SessionToken
@@ -40,7 +37,7 @@ pipeline {
 
         stage('Check Repository') {
             steps {
-                git branch: 'main', credentialsId: 'git_lemp_new', url: 'https://github.com/WaQQass/tf.lemp_sts_ec2.git'
+                git branch: 'master', credentialsId: 'git_lemp_new', url: 'https://github.com/WaQQass/tf.lemp_sts_ec2.git'
                 sh 'ls -la' // List all files in the current directory
             }
         }
@@ -92,6 +89,22 @@ pipeline {
                     } else {
                         error "Invalid action selected. Please choose either 'apply' or 'destroy'."
                     }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                if (params.action == 'apply') {
+                    // Trigger the second job after the first job completes successfully and the action chosen is 'apply'
+                    build job: 'Check-EC2-Status-and-IP', wait: false, parameters: [
+                        string(name: 'INSTANCE_ID', value: "${env.INSTANCE_ID}"),
+                        string(name: 'PUBLIC_IP', value: "${env.PUBLIC_IP}")
+                    ]
+                } else {
+                    echo "Second pipeline will not be triggered as 'destroy' action was chosen."
                 }
             }
         }
