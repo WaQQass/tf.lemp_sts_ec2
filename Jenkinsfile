@@ -99,7 +99,7 @@ pipeline {
             script {
                 if (params.action == 'apply') {
                     // Trigger the second job after the first job completes successfully and the action chosen is 'apply'
-                    build job: 'ec2-health-ip-with-role-do-ec2-tf-role-pipeline', wait: false, parameters: [
+                    build job: 'ec2-health-ip-with-role-do-ec2-tf-role-pipeline22', wait: false, parameters: [
                         string(name: 'INSTANCE_ID', value: "${env.INSTANCE_ID}"),
                         string(name: 'PUBLIC_IP', value: "${env.PUBLIC_IP}")
                     ]
